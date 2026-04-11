@@ -57,19 +57,30 @@ Every difficulty carries **different marks**, so solve wisely and maximize your 
     git clone git@github.com:Google-Developers-Group-IIIT-Lucknow/{repo-name}.git
     ```
 
-* While committing your changes, you might encounter some pre-commit hooks that would run some checks. You will be able to commit only when the pre-commit hook checks pass.
+* **One-time setup** — activate the pre-commit hook (run once inside the repo folder after cloning):
 
-    1. **Add the changes**
+    ```
+    git config core.hooksPath .hooks
+    ```
+    
+    > After this, every `git commit` will run the tests automatically and block the commit if they fail.
 
-    ```bash
-    git add . # To add all the changes at one
-    git add file-path # To add the changes in a single file
+* When you are ready to commit your changes, the pre-commit hook will run the tests. You will be able to commit only when all checks pass.
+
+    1. **Stage the changes**
+
+    ```
+    git add .
+    ```
+    or to stage a single file:
+    ```
+    git add path/to/file
     ```
 
     2. **Commit changes**
 
-    ```bash
-    git commit -m "type a message here"
+    ```
+    git commit -m "your message here"
     ```
     
 * Once, you are able to commit successfully, push your changes to your own fork.

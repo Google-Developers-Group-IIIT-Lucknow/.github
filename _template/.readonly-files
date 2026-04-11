@@ -1,0 +1,28 @@
+# =============================================================
+#  Read-only files for this task repo.
+#  Participants must NOT modify these files.
+#
+#  INSTRUCTIONS FOR TASK CREATORS:
+#  Add any file that participants should not be allowed to edit.
+#  One path per line.  Lines starting with # are ignored.
+#  Glob patterns are NOT supported — use exact paths.
+# =============================================================
+
+# CI workflows (always protect these)
+.github/workflows/fork-ci.yml
+.github/workflows/pr-checks.yml
+.github/workflows/pr-grader.yml
+
+# Hook source
+.hooks/pre-commit
+
+# Test infrastructure
+tests/run_tests.sh
+
+# Add your task-specific test files below, e.g.:
+# samples/in_sample.txt
+# samples/out_sample.txt
+
+# Repo metadata
+README.md
+.readonly-files
