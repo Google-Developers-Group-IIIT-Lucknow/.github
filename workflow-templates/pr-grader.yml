@@ -9,8 +9,8 @@ name: PR Grader
 #  Everything else (secrets, labels, comments) is automatic.
 #
 #  Required repository secrets (Settings → Secrets → Actions):
-#    GITHUB_WEBHOOK_SECRET   — shared webhook HMAC secret
-#    LEADERBOARD_WEBHOOK_URL — https://dev-sphere-leader-board.vercel.app/api/webhooks/github
+#    WEBHOOK_SECRET   — shared webhook HMAC secret
+#    LEADERBOARD_URL  — https://dev-sphere-leader-board.vercel.app/api/webhooks/github
 #
 #  Optional secret (FOSS repos only):
 #    TARGET_COMMIT_HASH      — SHA of the correct historical commit
@@ -205,8 +205,8 @@ jobs:
           steps.dup.outputs.is_duplicate == 'false' &&
           steps.commit_check.outputs.passed == 'true'
         env:
-          WEBHOOK_SECRET: ${{ secrets.GITHUB_WEBHOOK_SECRET }}
-          LEADERBOARD_URL: ${{ secrets.LEADERBOARD_WEBHOOK_URL }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          LEADERBOARD_URL: ${{ secrets.LEADERBOARD_URL }}
         run: |
           HEAD="${{ github.event.workflow_run.head_sha }}"
           COMMIT_TIME=$(git log -1 --format="%cI" "$HEAD" 2>/dev/null || date -u +"%Y-%m-%dT%H:%M:%S+00:00")
