@@ -10,8 +10,6 @@ name: Fork CI
 # ─────────────────────────────────────────────────────────────
 on:
   push:
-    branches-ignore:
-      - main
 
 jobs:
   run-tests:

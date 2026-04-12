@@ -183,6 +183,51 @@ The test runner compares the checker's stdout against `out_<name>.txt` (which sh
 
 ---
 
+## Making changes as a task creator
+
+Because `.hooks/pre-commit` is active in the repo and runs `tests/run_tests.sh` before every commit, **any commit you make is subject to the same test check as participants**. If the solution file in your repo is intentionally broken (e.g. a FOSS task where the correct solution is hidden in history), the pre-commit hook will block your commits.
+
+### Always use `--no-verify` for infrastructure commits
+
+When committing workflow files, the hook, test files, README, or anything that is not the solution itself, bypass the hook with `--no-verify`:
+
+```bash
+git add .github/workflows/pr-grader.yml
+git commit --no-verify -m "ci: update grader task_title"
+git push
+```
+
+```bash
+git add tests/run_tests.sh samples/ .readonly-files
+git commit --no-verify -m "feat: add test cases"
+git push
+```
+
+`--no-verify` skips the pre-commit hook for that one commit only. It does not affect participants — they cannot use it to bypass CI, because CI runs in GitHub Actions regardless of how the commit was made locally.
+
+### Temporarily disabling the hook
+
+If you are making many infrastructure changes in a session, you can disable the hook for the duration:
+
+```bash
+git config core.hooksPath .git/hooks   # disable (points to empty dir)
+
+# ... make all your commits normally ...
+
+git config core.hooksPath .hooks        # re-enable when done
+```
+
+### After updating a protected file
+
+If you change any file listed in `.readonly-files` (e.g. update the hook, fix a workflow, add a test case) and participants have **already forked** the repo, their forks will have the old version. When they open a PR the readonly check will flag the difference as a violation even though they didn't touch it.
+
+**Fix for affected participants:** ask them to sync their fork before opening a PR.
+On GitHub: their fork → **Sync fork** → **Update branch**.
+
+To avoid this during the event: finalise all changes to protected files **before** participants fork the repos.
+
+---
+
 ## Protecting test files
 
 Add every file participants should not modify to `.readonly-files`.
@@ -254,8 +299,9 @@ Both are valid approaches and both pass the check.
 - [ ] Add sample files to `.readonly-files`
 - [ ] Edit the two `CHANGE_ME` lines in `pr-grader.yml` (task_title + difficulty)
 - [ ] (FOSS only) Set `TARGET_COMMIT_HASH` secret
+- [ ] Commit all infrastructure changes with `--no-verify` (see "Making changes as a task creator" above)
 - [ ] Test locally: `bash tests/run_tests.sh`
-- [ ] Test on fork: push a passing solution, confirm fork-ci.yml turns green
+- [ ] Test on fork: push a passing solution (any branch), confirm fork-ci.yml turns green
 - [ ] Test PR flow: open a PR, confirm grader fires and leaderboard updates
 
 ---
@@ -264,6 +310,8 @@ Both are valid approaches and both pass the check.
 
 | Mistake | Fix |
 |---------|-----|
+| Committing without `--no-verify` | Hook blocks commit because solution is intentionally broken — always use `--no-verify` for infrastructure changes |
+| Updating a protected file after forks exist | Existing forks show a false readonly violation — ask participants to sync fork before opening PR |
 | `run_tests.sh` exits 0 even on wrong output | Use `diff` and check its exit code |
 | Sample files not in `.readonly-files` | Participants can replace them with trivial cases |
 | CHANGE_ME left in `pr-grader.yml` | Leaderboard API will return 404 (task not found) |
