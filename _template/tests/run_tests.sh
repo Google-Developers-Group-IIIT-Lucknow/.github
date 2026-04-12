@@ -8,6 +8,11 @@
 #  2. Edit the "CONFIGURE" section below to match your task.
 #  3. See SCORER_GUIDE.md for detailed guidance and examples.
 #
+#  Platform support:
+#    Windows  — works via Git for Windows (bundles bash + utilities)
+#    macOS    — works natively; TLE uses gtimeout if coreutils installed
+#    Linux    — full support
+#
 #  This script must:
 #    - Exit 0  when ALL tests pass
 #    - Exit 1  when ANY test fails (compilation, wrong output,
@@ -67,6 +72,23 @@ exit 1
 # ║  TEST RUNNER — do not modify below this line               ║
 # ╚═════════════════════════════════════════════════════════════╝
 
+# ── Cross-platform timeout helper ─────────────────────────────
+# GNU timeout (Linux/WSL/CI): timeout 40s ./bin
+# macOS + brew coreutils:     gtimeout 40s ./bin
+# Git Bash on Windows:        no GNU timeout locally — runs without
+#                             time limit (CI always enforces it on
+#                             Linux runners)
+_run_timed() {
+  local secs=$1; shift
+  if command -v timeout &>/dev/null && timeout --version &>/dev/null 2>&1; then
+    timeout "${secs}s" "$@"
+  elif command -v gtimeout &>/dev/null; then
+    gtimeout "${secs}s" "$@"
+  else
+    "$@"
+  fi
+}
+
 echo "── Compile ──────────────────────────────────────────────"
 if ! compile 2>&1; then
   echo ""
@@ -91,7 +113,8 @@ for in_file in "$SAMPLES"/in_*.txt; do
     continue
   fi
 
-  if actual=$(timeout "${TIMEOUT}s" bash -c 'run "$1"' _ "$in_file" 2>/dev/null); then
+  if actual=$(_run_timed "$TIMEOUT" bash -c 'run "$1"' _ "$in_file" 2>/dev/null); then
+    # Strip trailing whitespace to tolerate CRLF vs LF differences
     if diff <(printf '%s\n' "$actual" | sed 's/[[:space:]]*$//') \
             <(sed 's/[[:space:]]*$//' "$exp") > /dev/null 2>&1; then
       echo "PASS  $name"
