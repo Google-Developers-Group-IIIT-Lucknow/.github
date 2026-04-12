@@ -1,28 +1,34 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # =============================================================
 #  DevSphere — Pre-commit Hook
-#  Installed by setup.sh.  Runs tests before every commit.
+#
+#  Activated with:  git config core.hooksPath .hooks
+#  (run once after cloning — works on Windows, macOS, Linux)
+#
+#  Git executes this through its own bundled sh on every platform,
+#  so no extra tools are required beyond Git itself.
 # =============================================================
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 RUNNER="$REPO_ROOT/tests/run_tests.sh"
 
 echo ""
-echo "─────────────────────────────────────────────"
-echo "  DevSphere pre-commit: running tests…"
-echo "─────────────────────────────────────────────"
+echo "-------------------------------------------"
+echo "  DevSphere pre-commit: running tests..."
+echo "-------------------------------------------"
 
-if [[ ! -f "$RUNNER" ]]; then
-  echo "[!] tests/run_tests.sh not found — skipping."
+if [ ! -f "$RUNNER" ]; then
+  echo "[!] tests/run_tests.sh not found -- skipping."
   exit 0
 fi
 
 if bash "$RUNNER"; then
   echo ""
-  echo "[✓] All tests passed. Proceeding with commit."
+  echo "[PASS] All tests passed. Proceeding with commit."
   exit 0
 else
   echo ""
-  echo "[✗] Tests FAILED. Commit blocked."
-  echo "    Run  bash tests/run_tests.sh  to see details."
+  echo "[FAIL] Tests FAILED. Commit blocked."
+  echo "       Fix your solution and try again."
+  echo "       Run  bash tests/run_tests.sh  to see details."
   exit 1
 fi
