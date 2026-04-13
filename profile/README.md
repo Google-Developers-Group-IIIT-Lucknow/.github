@@ -11,6 +11,7 @@ You’ll be given a curated sheet of **9 repositories**:
 * **App Development** (3)
 * **Web Development** (3)
 * **FOSS (Open Source)** (3)
+* **Machine Learning** (3) 
 
 Each category includes:
 
